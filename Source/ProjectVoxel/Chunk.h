@@ -86,6 +86,8 @@ public:
 
 	int32 vertexIndex = 0;
 
+	bool*** voxelMap;
+
 public:
 	// Sets default values for this actor's properties
 	AChunk();
@@ -101,7 +103,8 @@ public:
 	virtual void PostLoad() override;
 
 private:
-	void AddVoxelDataToChunk(FVector);
+	void PopulateVoxelMap();
+	void AddVoxelDataToChunk(FVector pos);
 	void CreateMesh();
-
+	bool CheckVoxel(FVector pos);
 };
