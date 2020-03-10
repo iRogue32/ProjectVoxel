@@ -23,6 +23,35 @@ AChunk::AChunk()
 	}
 }
 
+void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
+{
+	coord = _coord;
+	material = _material;
+	PopulateVoxelMap();
+
+	for (int z = 0; z < chunkHeight; z++)
+	{
+		for (int y = 0; y < chunkLength; y++)
+		{
+			for (int x = 0; x < chunkLength; x++)
+			{
+				r = FMath::RandRange(0.0f, 1.0f);
+				g = FMath::RandRange(0.0f, 1.0f);
+				b = FMath::RandRange(0.0f, 1.0f);
+				AddVoxelDataToChunk(FVector(x * 100, y * 100, z * 100));
+			}
+		}
+	}
+
+	CreateMesh();
+	SetActorLocation(FVector(coord->x * 100 * chunkLength, coord->y * 100 * chunkLength, 0));
+	FString label = "Chunk ";
+	label.AppendInt(coord->x);
+	label += ", ";
+	label.AppendInt(coord->y);
+	SetActorLabel(label);
+}
+
 void AChunk::PostActorCreated()
 {
 	Super::PostActorCreated();
@@ -31,6 +60,11 @@ void AChunk::PostActorCreated()
 void AChunk::PostLoad()
 {
 	Super::PostLoad();
+}
+
+UChunkCoord* AChunk::GetChunkCoord()
+{
+	return coord;
 }
 
 void AChunk::PopulateVoxelMap()
@@ -53,23 +87,41 @@ void AChunk::AddVoxelDataToChunk(FVector pos)
 	{
 		if (!CheckVoxel(pos + VOXEL_NORMALS[face] * 100))
 		{
-			for (int i = 0; i < 6; i++)
-			{
-				int triangleIndex = VOXEL_TRIANGLES[face][i];
-				vertices.Add(VOXEL_VERTICES[triangleIndex] + pos);
-				triangles.Add(vertexIndex);
-				uvs.Add(VOXEL_UVS[i]);
-				normals.Add(VOXEL_NORMALS[face]);
-				vertexColors.Add(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f));
-				vertexIndex++;
-			}
+			vertices.Add(pos + VOXEL_VERTICES[VOXEL_TRIANGLES[face][0]]);
+			vertices.Add(pos + VOXEL_VERTICES[VOXEL_TRIANGLES[face][1]]);
+			vertices.Add(pos + VOXEL_VERTICES[VOXEL_TRIANGLES[face][2]]);
+			vertices.Add(pos + VOXEL_VERTICES[VOXEL_TRIANGLES[face][3]]);
+
+			normals.Add(VOXEL_NORMALS[face]);
+			normals.Add(VOXEL_NORMALS[face]);
+			normals.Add(VOXEL_NORMALS[face]);
+			normals.Add(VOXEL_NORMALS[face]);
+
+			uvs.Add(VOXEL_UVS[0]);
+			uvs.Add(VOXEL_UVS[1]);
+			uvs.Add(VOXEL_UVS[2]);
+			uvs.Add(VOXEL_UVS[3]);
+
+			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+
+			triangles.Add(vertexIndex);
+			triangles.Add(vertexIndex + 1);
+			triangles.Add(vertexIndex + 2);
+			triangles.Add(vertexIndex + 0);
+			triangles.Add(vertexIndex + 2);
+			triangles.Add(vertexIndex + 3);
+
+			vertexIndex += 4;
 		}
 	}
 }
 
 void AChunk::CreateMesh()
 {
-	mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
+	mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, false);
 	mesh->SetMaterial(0, material);
 }
 
@@ -90,21 +142,6 @@ bool AChunk::CheckVoxel(FVector pos)
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();
-
-	PopulateVoxelMap();
-
-	for (int z = 0; z < chunkHeight; z++)
-	{
-		for (int y = 0; y < chunkLength; y++)
-		{
-			for (int x = 0; x < chunkLength; x++)
-			{
-				AddVoxelDataToChunk(FVector(x * 100, y * 100, z * 100));
-			}
-		}
-	}
-
-	CreateMesh();
 }
 
 // Called every frame
@@ -112,5 +149,34 @@ void AChunk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+// ChunkCoord
+
+UChunkCoord::UChunkCoord()
+{
+	x = 0;
+	y = 0;
+}
+
+void UChunkCoord::Init(int _x, int _y)
+{
+	x = _x;
+	y = _y;
+}
+
+int64 UChunkCoord::AsLong()
+{
+	return (int64)x & 4294967295LL | ((int64)y & 4294967295LL) << 32;
+}
+
+int UChunkCoord::GetX(int64 num)
+{
+	return (int)(num & 4294967295LL);
+}
+
+int UChunkCoord::GetY(int64 num)
+{
+	return (int)((num >> 32) & 4294967295LL);
 }
 
