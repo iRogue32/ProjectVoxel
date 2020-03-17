@@ -114,13 +114,11 @@ bool AWorldController::ChunkIsLoaded(UChunkCoord* coord)
 	return loadedChunkMap.Contains(coord->AsLong());
 }
 
-bool AWorldController::WithinLoadedRadius(AChunk* chunk, UChunkCoord* playerChunk)
+bool AWorldController::WithinLoadedRadius(AChunk* chunk, UChunkCoord* playerChunkCoord)
 {
-	//UChunkCoord* coord = chunk->coord;
-	//if ((abs(coord->x) - 2 <= abs(playerChunk->x)) || (abs(coord->x) + 2 <= abs(playerChunk->x))  && (abs(coord->y) - 2 <= abs(playerChunk->y)) || (abs(coord->y) + 2 <= abs(playerChunk->y)))
-	//{
-	//	return true;
-	//}
+	UChunkCoord* coord = chunk->coord;
+	if ((coord->x > playerChunkCoord->x + loadedChunkRadius) || (coord->x < playerChunkCoord->x - loadedChunkRadius) || (coord->y > playerChunkCoord->y + loadedChunkRadius) || (coord->y < playerChunkCoord->y - loadedChunkRadius))
+		return false;
 
 	return true;
 }
