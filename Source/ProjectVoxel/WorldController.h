@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
 #include <string>
 #include "Chunk.h"
 #include "WorldController.generated.h"
@@ -15,21 +16,21 @@ class PROJECTVOXEL_API AWorldController : public AActor
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Blocks)
-	UBlockTypes* blocks;
+		UBlockTypes* blocks;
 
-	static const int worldRadiusInChunks = 10;
+	UPROPERTY(VisibleAnywhere, Category = Players)
+		APawn* player;
+
+	static const int loadedChunkRadius = 2;
 
 	UPROPERTY(VisibleAnywhere, Category = LoadedChunks)
-		TMap<int64, AChunk*> chunkMap;
+		TMap<int64, AChunk*> loadedChunkMap;
 
 	UPROPERTY(EditAnywhere, Category = Material)
 		UMaterial* chunkMaterial;
 
 private:
-	AChunk* chunkMapPosPos[worldRadiusInChunks][worldRadiusInChunks];
-	AChunk* chunkMapPosNeg[worldRadiusInChunks][worldRadiusInChunks];
-	AChunk* chunkMapNegPos[worldRadiusInChunks][worldRadiusInChunks];
-	AChunk* chunkMapNegNeg[worldRadiusInChunks][worldRadiusInChunks];
+	FVector playerSpawnEdition;
 
 public:	
 	// Sets default values for this actor's properties
@@ -41,10 +42,15 @@ protected:
 
 public:	
 	void GenerateWorld();
-	void AddChunk(AChunk* chunk);
-	AChunk* GetChunk(UChunkCoord* coord);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	AChunk* GetChunk(UChunkCoord* coord);
+
+private:
+	void CreateNewChunk(int x, int y);
+	void AddChunk(AChunk* chunk);
+	bool ChunkIsLoaded(UChunkCoord* coord);
+	bool WithinLoadedRadius(AChunk* chunk, UChunkCoord* playerChunk);
 
 };
 

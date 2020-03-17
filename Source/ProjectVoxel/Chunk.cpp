@@ -29,15 +29,16 @@ void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
 	material = _material;
 	PopulateVoxelMap();
 
+	r = FMath::RandRange(0.0f, 1.0f);
+	g = FMath::RandRange(0.0f, 1.0f);
+	b = FMath::RandRange(0.0f, 1.0f);
+
 	for (int z = 0; z < chunkHeight; z++)
 	{
 		for (int y = 0; y < chunkLength; y++)
 		{
 			for (int x = 0; x < chunkLength; x++)
 			{
-				r = FMath::RandRange(0.0f, 1.0f);
-				g = FMath::RandRange(0.0f, 1.0f);
-				b = FMath::RandRange(0.0f, 1.0f);
 				AddVoxelDataToChunk(FVector(x * 100, y * 100, z * 100));
 			}
 		}
@@ -65,6 +66,24 @@ void AChunk::PostLoad()
 UChunkCoord* AChunk::GetChunkCoord()
 {
 	return coord;
+}
+
+UChunkCoord* AChunk::GetChunkCoordFromWorldCoord(FVector pos)
+{
+	int x, y;
+	if (pos.X >= 0.0f)
+		x = pos.X / (chunkLength * 100);
+	else
+		x = (pos.X / (chunkLength * 100)) - 1;
+	if (pos.Y >= 0.0f)
+		y = pos.Y / (chunkLength * 100);
+	else
+		y = (pos.Y / (chunkLength * 100)) - 1;
+
+	UChunkCoord* chunkCoord = NewObject<UChunkCoord>();
+	chunkCoord->Init(x, y);
+
+	return chunkCoord;
 }
 
 void AChunk::PopulateVoxelMap()
@@ -121,8 +140,18 @@ void AChunk::AddVoxelDataToChunk(FVector pos)
 
 void AChunk::CreateMesh()
 {
-	mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, false);
+	mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
 	mesh->SetMaterial(0, material);
+}
+
+// returns true if voxel at relative pos (x, y, z) is within the current chunk
+bool AChunk::VoxelIsInChunk(int x, int y, int z)
+{
+	if (x < 0 || x >= chunkLength || y < 0 || y >= chunkLength || z < 0 || z >= chunkHeight)
+	{
+		return false;
+	}
+	return true;
 }
 
 bool AChunk::CheckVoxel(FVector pos)
@@ -131,11 +160,11 @@ bool AChunk::CheckVoxel(FVector pos)
 	int y = pos.Y / 100;
 	int z = pos.Z / 100;
 
-	if (x < 0 || x >= chunkLength || y < 0 || y >= chunkLength || z < 0 || z >= chunkHeight)
+	if (VoxelIsInChunk(x, y, z))
 	{
-		return false;
+		return voxelMap[x][y][z];
 	}
-	return voxelMap[x][y][z];
+	return false;
 }
 
 // Called when the game starts or when spawned

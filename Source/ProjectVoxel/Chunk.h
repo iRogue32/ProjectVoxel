@@ -82,8 +82,8 @@ public:
 
 	UChunkCoord* coord;
 
-	int32 chunkHeight = 4;
-	int32 chunkLength = 16;
+	static const int32 chunkHeight = 5;
+	static const int32 chunkLength = 5;
 
 	int32 vertexIndex = 0;
 
@@ -108,11 +108,13 @@ public:
 	virtual void PostActorCreated() override;
 	virtual void PostLoad() override;
 	UChunkCoord* GetChunkCoord();
+	static UChunkCoord* GetChunkCoordFromWorldCoord(FVector pos);
 
 private:
 	void PopulateVoxelMap();
 	void AddVoxelDataToChunk(FVector pos);
 	void CreateMesh();
+	bool VoxelIsInChunk(int x, int y, int z);
 	bool CheckVoxel(FVector pos);
 };
 
