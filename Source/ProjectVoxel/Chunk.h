@@ -87,7 +87,7 @@ public:
 
 	int32 vertexIndex = 0;
 
-	bool*** voxelMap;
+	uint8*** voxelMap;
 
 	float r;
 	float g;

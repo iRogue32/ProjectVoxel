@@ -12,13 +12,13 @@ AChunk::AChunk()
 	RootComponent = mesh;
 	mesh->bUseAsyncCooking = true;
 
-	voxelMap = new bool** [chunkLength];
+	voxelMap = new uint8** [chunkLength];
 	for (int i = 0; i < chunkLength; i++)
 	{
-		voxelMap[i] = new bool* [chunkLength];
+		voxelMap[i] = new uint8* [chunkLength];
 		for (int j = 0; j < chunkLength; j++)
 		{
-			voxelMap[i][j] = new bool[chunkHeight] { false };
+			voxelMap[i][j] = new uint8[chunkHeight] { false };
 		}
 	}
 }
