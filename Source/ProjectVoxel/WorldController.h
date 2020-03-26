@@ -21,7 +21,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Players)
 		APawn* player;
 
-	static const int loadedChunkRadius = 2;
+	static const int loadedChunkRadius = 10;
 
 	UPROPERTY(VisibleAnywhere, Category = LoadedChunks)
 		TMap<int64, AChunk*> loadedChunkMap;

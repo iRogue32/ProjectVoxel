@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "FastNoise.h"
 #include "Chunk.generated.h"
 
 UCLASS()
@@ -19,6 +20,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Attributes)
 		UMaterial* material;
+
+	static const int32 chunkHeight = 128;
+	static const int32 chunkLength = 16;
+
+	//UPROPERTY(VisibleAnywhere, Category = height map)
+		int heightMap[chunkLength][chunkLength];
 
 public:
 	FVector VOXEL_VERTICES[8] =
@@ -71,10 +78,8 @@ public:
 		FVector(0, 100, 0)
 	};
 
-	UPROPERTY(EditAnywhere, Category = vertices)
-		TArray<FVector> vertices;
-	UPROPERTY(EditAnywhere, Category = triangles)
-		TArray<int32> triangles;
+	TArray<FVector> vertices;
+	TArray<int32> triangles;
 	TArray<FVector2D> uvs;
 	TArray<FVector> normals;
 	TArray<FLinearColor> vertexColors;
@@ -82,12 +87,9 @@ public:
 
 	UChunkCoord* coord;
 
-	static const int32 chunkHeight = 5;
-	static const int32 chunkLength = 5;
-
 	int32 vertexIndex = 0;
 
-	uint8*** voxelMap;
+	bool*** voxelMap;
 
 	float r;
 	float g;
@@ -111,9 +113,11 @@ public:
 	static UChunkCoord* GetChunkCoordFromWorldCoord(FVector pos);
 
 private:
+	void CreateHeightMap();
 	void PopulateVoxelMap();
-	void AddVoxelDataToChunk(FVector pos);
+	void AddVoxelRenderDataToChunk(FVector pos);
 	void CreateMesh();
+	bool GenerateVoxel(int x, int y, int z);
 	bool VoxelIsInChunk(int x, int y, int z);
 	bool CheckVoxel(FVector pos);
 };

@@ -12,13 +12,13 @@ AChunk::AChunk()
 	RootComponent = mesh;
 	mesh->bUseAsyncCooking = true;
 
-	voxelMap = new uint8** [chunkLength];
+	voxelMap = new bool** [chunkLength];
 	for (int i = 0; i < chunkLength; i++)
 	{
-		voxelMap[i] = new uint8* [chunkLength];
+		voxelMap[i] = new bool* [chunkLength];
 		for (int j = 0; j < chunkLength; j++)
 		{
-			voxelMap[i][j] = new uint8[chunkHeight] { false };
+			voxelMap[i][j] = new bool[chunkHeight] { false };
 		}
 	}
 }
@@ -27,6 +27,7 @@ void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
 {
 	coord = _coord;
 	material = _material;
+	CreateHeightMap();
 	PopulateVoxelMap();
 
 	r = FMath::RandRange(0.0f, 1.0f);
@@ -39,7 +40,8 @@ void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
 		{
 			for (int x = 0; x < chunkLength; x++)
 			{
-				AddVoxelDataToChunk(FVector(x * 100, y * 100, z * 100));
+				if (voxelMap[x][y][z])
+					AddVoxelRenderDataToChunk(FVector(x * 100, y * 100, z * 100));
 			}
 		}
 	}
@@ -50,7 +52,7 @@ void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
 	label.AppendInt(coord->x);
 	label += ", ";
 	label.AppendInt(coord->y);
-	SetActorLabel(label);
+	//SetActorLabel(label);
 }
 
 void AChunk::PostActorCreated()
@@ -86,6 +88,20 @@ UChunkCoord* AChunk::GetChunkCoordFromWorldCoord(FVector pos)
 	return chunkCoord;
 }
 
+void AChunk::CreateHeightMap()
+{
+	FastNoise noise;
+	noise.SetNoiseType(FastNoise::Perlin);
+
+	for (int x = 0; x < chunkLength; x++)
+	{
+		for (int y = 0; y < chunkLength; y++)
+		{
+			heightMap[x][y] = noise.GetNoise(x + (coord->x * chunkLength), y + (coord->y * chunkLength)) * chunkHeight;
+		}
+	}
+}
+
 void AChunk::PopulateVoxelMap()
 {
 	for (int z = 0; z < chunkHeight; z++)
@@ -94,13 +110,13 @@ void AChunk::PopulateVoxelMap()
 		{
 			for (int x = 0; x < chunkLength; x++)
 			{
-				voxelMap[x][y][z] = true;
+					voxelMap[x][y][z] = GenerateVoxel(x , y, z);
 			}
 		}
 	}
 }
 
-void AChunk::AddVoxelDataToChunk(FVector pos)
+void AChunk::AddVoxelRenderDataToChunk(FVector pos)
 {
 	for (int face = 0; face < 6; face++)
 	{
@@ -142,6 +158,17 @@ void AChunk::CreateMesh()
 {
 	mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
 	mesh->SetMaterial(0, material);
+}
+
+// Generates voxel at position x,y,z
+bool AChunk::GenerateVoxel(int x, int y, int z)
+{
+	if (heightMap[x][y] <= 0)
+		heightMap[x][y] = 0;
+	if (z <= heightMap[x][y])
+		return true;
+	
+	return false;
 }
 
 // returns true if voxel at relative pos (x, y, z) is within the current chunk
