@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "ChunkPos.h"
 #include "Math/UnrealMathUtility.h"
 #include "FastNoise.h"
 #include "Chunk.generated.h"
@@ -25,7 +26,7 @@ private:
 	static const int32 chunkLength = 16;
 
 	//UPROPERTY(VisibleAnywhere, Category = height map)
-		int heightMap[chunkLength][chunkLength];
+	int heightMap[chunkLength][chunkLength];
 
 public:
 	FVector VOXEL_VERTICES[8] =
@@ -85,7 +86,7 @@ public:
 	TArray<FLinearColor> vertexColors;
 	TArray<FProcMeshTangent> tangents;
 
-	UChunkCoord* coord;
+	ChunkPos chunkPosition;
 
 	int32 vertexIndex = 0;
 
@@ -105,12 +106,12 @@ protected:
 
 public:
 	// Called every frame
-	void Init(UChunkCoord* _coord, UMaterial* _material);
+	void Init(ChunkPos pos, UMaterial* _material);
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostActorCreated() override;
 	virtual void PostLoad() override;
-	UChunkCoord* GetChunkCoord();
-	static UChunkCoord* GetChunkCoordFromWorldCoord(FVector pos);
+	ChunkPos GetChunkPosition();
+	static ChunkPos GetChunkPositionFromWorldCoord(FVector pos);
 
 private:
 	void CreateHeightMap();
@@ -122,18 +123,3 @@ private:
 	bool CheckVoxel(FVector pos);
 };
 
-UCLASS()
-class UChunkCoord : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	int x;
-	int y;
-
-	UChunkCoord();
-	void Init(int x, int y);
-	int64 AsLong();
-	static int GetX(int64 num);
-	static int GetY(int64 num);
-};

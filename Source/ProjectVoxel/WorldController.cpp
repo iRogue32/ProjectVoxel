@@ -41,17 +41,17 @@ void AWorldController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector playerLocation = player->GetActorLocation();
-	UChunkCoord* playerChunkCoord = AChunk::GetChunkCoordFromWorldCoord(playerLocation);
+	ChunkPos playerChunkPos = AChunk::GetChunkPositionFromWorldCoord(playerLocation);
 
 	const int32 AlwaysAddString = -1;
 	static const FString scrollingMessage(TEXT("Chunk coord: "));
 
-	GEngine->AddOnScreenDebugMessage(AlwaysAddString, 0.5f, FColor::Yellow, scrollingMessage + FString::FromInt(playerChunkCoord->x) + FString(TEXT(", ") + FString::FromInt(playerChunkCoord->y)));
+	GEngine->AddOnScreenDebugMessage(AlwaysAddString, 0.5f, FColor::Yellow, scrollingMessage + FString::FromInt(playerChunkPos.x) + FString(TEXT(", ") + FString::FromInt(playerChunkPos.y)));
 
 	// Unload chunks farther than loadedChunkRadius from player
 	for (auto& chunk : loadedChunkMap)
 	{
-		if (WithinLoadedRadius(chunk.Value, playerChunkCoord))
+		if (WithinLoadedRadius(chunk.Value, playerChunkPos))
 		{
 			// If chunk is within loadedChunkRadius
 			continue;
@@ -65,14 +65,13 @@ void AWorldController::Tick(float DeltaTime)
 	}
 
 	// Load chunks around player within loadedChunkRadius
-	for (int x = (playerChunkCoord->x - loadedChunkRadius); x <= playerChunkCoord->x + loadedChunkRadius; x++)
+	for (int x = (playerChunkPos.x - loadedChunkRadius); x <= playerChunkPos.x + loadedChunkRadius; x++)
 	{
-		for (int y = playerChunkCoord->y - loadedChunkRadius; y <= playerChunkCoord->y + loadedChunkRadius; y++)
+		for (int y = playerChunkPos.y - loadedChunkRadius; y <= playerChunkPos.y + loadedChunkRadius; y++)
 		{
-			UChunkCoord* chunkCoord = NewObject<UChunkCoord>();
-			chunkCoord->Init(x, y);
+			ChunkPos chunkPos(x, y);
 			// Check if chunk is already loaded
-			if (loadedChunkMap.Contains(chunkCoord->AsLong()))
+			if (loadedChunkMap.Contains(chunkPos.AsLong()))
 			{
 				// If chunk is loaded, continue to next chunk
 				continue;
@@ -84,40 +83,39 @@ void AWorldController::Tick(float DeltaTime)
 
 }
 
-AChunk* AWorldController::GetChunk(UChunkCoord* coord)
+AChunk* AWorldController::GetChunk(ChunkPos chunkPos)
 {
-	int x = coord->x;
-	int y = coord->y;
+	int32 x = chunkPos.x;
+	int32 y = chunkPos.y;
 	return nullptr;
 }
 
 void AWorldController::CreateNewChunk(int x, int y)
 {
 	AChunk* chunk = GetWorld()->SpawnActor<AChunk>();
-	UChunkCoord* coord = NewObject<UChunkCoord>();
-	coord->Init(x, y);
-	chunk->Init(coord, chunkMaterial);
-	loadedChunkMap.Add(coord->AsLong(), chunk);
+	ChunkPos chunkPos(x, y);
+	chunk->Init(chunkPos, chunkMaterial);
+	loadedChunkMap.Add(chunkPos.AsLong(), chunk);
 }
 
 void AWorldController::AddChunk(AChunk* chunk)
 {
-	UChunkCoord* coord = chunk->GetChunkCoord();
-	int x = coord->x;
-	int y = coord->y;
-	
+	ChunkPos chunkPos = chunk->GetChunkPosition();
+	int x = chunkPos.x;
+	int y = chunkPos.y;
+	// TODO: implement
 }
 
-// returns true if chunk with UChunkCoord coord is currently loaded
-bool AWorldController::ChunkIsLoaded(UChunkCoord* coord)
+// returns true if chunk with ChunkPos chunkPos is currently loaded
+bool AWorldController::ChunkIsLoaded(ChunkPos chunkPos)
 {
-	return loadedChunkMap.Contains(coord->AsLong());
+	return loadedChunkMap.Contains(chunkPos.AsLong());
 }
 
-bool AWorldController::WithinLoadedRadius(AChunk* chunk, UChunkCoord* playerChunkCoord)
+bool AWorldController::WithinLoadedRadius(AChunk* chunk, ChunkPos playerChunkPos)
 {
-	UChunkCoord* coord = chunk->coord;
-	if ((coord->x > playerChunkCoord->x + loadedChunkRadius) || (coord->x < playerChunkCoord->x - loadedChunkRadius) || (coord->y > playerChunkCoord->y + loadedChunkRadius) || (coord->y < playerChunkCoord->y - loadedChunkRadius))
+	ChunkPos chunkPos = chunk->chunkPosition;
+	if ((chunkPos.x > playerChunkPos.x + loadedChunkRadius) || (chunkPos.x < playerChunkPos.x - loadedChunkRadius) || (chunkPos.y > playerChunkPos.y + loadedChunkRadius) || (chunkPos.y < playerChunkPos.y - loadedChunkRadius))
 		return false;
 
 	return true;

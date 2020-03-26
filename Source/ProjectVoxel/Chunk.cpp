@@ -23,9 +23,9 @@ AChunk::AChunk()
 	}
 }
 
-void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
+void AChunk::Init(ChunkPos pos, UMaterial* _material)
 {
-	coord = _coord;
+	chunkPosition = pos;
 	material = _material;
 	CreateHeightMap();
 	PopulateVoxelMap();
@@ -47,11 +47,11 @@ void AChunk::Init(UChunkCoord* _coord, UMaterial* _material)
 	}
 
 	CreateMesh();
-	SetActorLocation(FVector(coord->x * 100 * chunkLength, coord->y * 100 * chunkLength, 0));
+	SetActorLocation(FVector(chunkPosition.x * 100 * chunkLength, chunkPosition.y * 100 * chunkLength, 0));
 	FString label = "Chunk ";
-	label.AppendInt(coord->x);
+	label.AppendInt(chunkPosition.x);
 	label += ", ";
-	label.AppendInt(coord->y);
+	label.AppendInt(chunkPosition.y);
 	//SetActorLabel(label);
 }
 
@@ -65,14 +65,14 @@ void AChunk::PostLoad()
 	Super::PostLoad();
 }
 
-UChunkCoord* AChunk::GetChunkCoord()
+ChunkPos AChunk::GetChunkPosition()
 {
-	return coord;
+	return chunkPosition;
 }
 
-UChunkCoord* AChunk::GetChunkCoordFromWorldCoord(FVector pos)
+ChunkPos AChunk::GetChunkPositionFromWorldCoord(FVector pos)
 {
-	int x, y;
+	int32 x, y;
 	if (pos.X >= 0.0f)
 		x = pos.X / (chunkLength * 100);
 	else
@@ -82,10 +82,8 @@ UChunkCoord* AChunk::GetChunkCoordFromWorldCoord(FVector pos)
 	else
 		y = (pos.Y / (chunkLength * 100)) - 1;
 
-	UChunkCoord* chunkCoord = NewObject<UChunkCoord>();
-	chunkCoord->Init(x, y);
-
-	return chunkCoord;
+	ChunkPos chunkPos(x, y);
+	return chunkPos;
 }
 
 void AChunk::CreateHeightMap()
@@ -97,7 +95,7 @@ void AChunk::CreateHeightMap()
 	{
 		for (int y = 0; y < chunkLength; y++)
 		{
-			heightMap[x][y] = noise.GetNoise(x + (coord->x * chunkLength), y + (coord->y * chunkLength)) * chunkHeight;
+			heightMap[x][y] = noise.GetNoise(x + (chunkPosition.x * chunkLength), y + (chunkPosition.y * chunkLength)) * chunkHeight;
 		}
 	}
 }
@@ -206,33 +204,3 @@ void AChunk::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-// ChunkCoord
-
-UChunkCoord::UChunkCoord()
-{
-	x = 0;
-	y = 0;
-}
-
-void UChunkCoord::Init(int _x, int _y)
-{
-	x = _x;
-	y = _y;
-}
-
-int64 UChunkCoord::AsLong()
-{
-	return (int64)x & 4294967295LL | ((int64)y & 4294967295LL) << 32;
-}
-
-int UChunkCoord::GetX(int64 num)
-{
-	return (int)(num & 4294967295LL);
-}
-
-int UChunkCoord::GetY(int64 num)
-{
-	return (int)((num >> 32) & 4294967295LL);
-}
-

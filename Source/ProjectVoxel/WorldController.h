@@ -44,13 +44,13 @@ public:
 	void GenerateWorld();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	AChunk* GetChunk(UChunkCoord* coord);
+	AChunk* GetChunk(ChunkPos chunkPos);
 
 private:
 	void CreateNewChunk(int x, int y);
 	void AddChunk(AChunk* chunk);
-	bool ChunkIsLoaded(UChunkCoord* coord);
-	bool WithinLoadedRadius(AChunk* chunk, UChunkCoord* playerChunk);
+	bool ChunkIsLoaded(ChunkPos chunkPos);
+	bool WithinLoadedRadius(AChunk* chunk, ChunkPos playerChunk);
 
 };
 
