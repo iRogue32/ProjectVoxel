@@ -95,7 +95,7 @@ void AChunk::CreateHeightMap()
 	{
 		for (int y = 0; y < chunkLength; y++)
 		{
-			heightMap[x][y] = noise.GetNoise(x + (chunkPosition.x * chunkLength), y + (chunkPosition.y * chunkLength)) * chunkHeight;
+			heightMap[x][y] = noise.GetNoise((x + (chunkPosition.x * chunkLength)), (y + (chunkPosition.y * chunkLength))) * chunkHeight;
 		}
 	}
 }
