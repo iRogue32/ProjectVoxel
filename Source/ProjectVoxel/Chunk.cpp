@@ -33,7 +33,7 @@ void AChunk::Init(ChunkPos pos, UMaterial* _material)
 	r = FMath::RandRange(0.0f, 1.0f);
 	g = FMath::RandRange(0.0f, 1.0f);
 	b = FMath::RandRange(0.0f, 1.0f);
-
+	
 	for (int z = 0; z < chunkHeight; z++)
 	{
 		for (int y = 0; y < chunkLength; y++)
@@ -46,7 +46,7 @@ void AChunk::Init(ChunkPos pos, UMaterial* _material)
 		}
 	}
 
-	CreateMesh();
+	// CreateMesh();
 	SetActorLocation(FVector(chunkPosition.x * 100 * chunkLength, chunkPosition.y * 100 * chunkLength, 0));
 	FString label = "Chunk ";
 	label.AppendInt(chunkPosition.x);
@@ -88,6 +88,16 @@ ChunkPos AChunk::GetChunkPositionFromWorldCoord(FVector pos)
 
 void AChunk::CreateHeightMap()
 {
+	// sets blocks to fill chunk up to half of chunk height
+	for (int x = 0; x < chunkLength; x++)
+	{
+		for (int y = 0; y < chunkLength; y++)
+		{
+			heightMap[x][y] = 0.5f * chunkHeight;
+		}
+	}
+
+	/*
 	FastNoise noise;
 	noise.SetNoiseType(FastNoise::Perlin);
 
@@ -98,6 +108,7 @@ void AChunk::CreateHeightMap()
 			heightMap[x][y] = noise.GetNoise((x + (chunkPosition.x * chunkLength)), (y + (chunkPosition.y * chunkLength))) * chunkHeight;
 		}
 	}
+	*/
 }
 
 void AChunk::PopulateVoxelMap()

@@ -21,7 +21,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Players)
 		APawn* player;
 
-	static const int loadedChunkRadius = 10;
+	static const int loadedChunkRadius = 12;
 
 	UPROPERTY(VisibleAnywhere, Category = LoadedChunks)
 		TMap<int64, AChunk*> loadedChunkMap;
@@ -39,6 +39,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void OnConstruction(const FTransform& transform) override;
+	virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
 public:	
 	void GenerateWorld();

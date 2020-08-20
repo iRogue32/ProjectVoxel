@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class UCapsuleComponent;
+class UCharacterMovementComponent;
 class UArrowComponent;
 
 UCLASS()
@@ -15,7 +16,7 @@ class PROJECTVOXEL_API AVoxelPlayerPawn : public APawn
 {
 	GENERATED_BODY()
 
-public:
+private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* visibleComponent;
 
@@ -33,6 +34,14 @@ public:
 	// Input Variables
 	FVector CurrentVelocity;
 
+protected:
+	/** DefaultPawn movement component */
+	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPawnMovementComponent* movementComponent;
+
+public:
+	static FName characterMovementComponentName;
+
 public:
 	// Sets default values for this pawn's properties
 	AVoxelPlayerPawn();
@@ -48,4 +57,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Begin Pawn overrides
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
+
+	UFUNCTION()
+	void MoveForward(float value);
+
+	UFUNCTION()
+	void MoveRight(float value);
 };

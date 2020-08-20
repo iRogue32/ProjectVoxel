@@ -8,7 +8,21 @@ AWorldController::AWorldController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	// RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	// GenerateWorld();
+}
+
+void AWorldController::OnConstruction(const FTransform& transform)
+{
+	/*
+	Super::OnConstruction(transform);
+
+	SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
+
+	// player = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	GenerateWorld();
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -21,7 +35,17 @@ void AWorldController::BeginPlay()
 	player = GetWorld()->GetFirstPlayerController()->GetPawn();
 
 	GenerateWorld();
-	//AProjectVoxelCharacter* player = GetWorld()->SpawnActor<AProjectVoxelCharacter>(GetTransform().GetLocation(), GetTransform().GetRotation().Rotator());
+	// AProjectVoxelCharacter* player = GetWorld()->SpawnActor<AProjectVoxelCharacter>(GetTransform().GetLocation(), GetTransform().GetRotation().Rotator());
+}
+
+void AWorldController::EndPlay(const EEndPlayReason::Type reason)
+{
+	Super::EndPlay(reason);
+
+	for (auto& elem : loadedChunkMap)
+	{
+		elem.Value->Destroy();
+	}
 }
 
 void AWorldController::GenerateWorld()
@@ -30,6 +54,15 @@ void AWorldController::GenerateWorld()
 	{
 		for (int y = -loadedChunkRadius; y <= loadedChunkRadius; y++)
 		{
+			// annoying bug where this function may be called multiple times from onConstruction
+			ChunkPos chunkPos(x, y);
+			// Check if chunk is already loaded
+			if (loadedChunkMap.Contains(chunkPos.AsLong()))
+			{
+				// If chunk is loaded, continue to next chunk
+				continue;
+			}
+			// If chunk is not loaded, then generate it
 			CreateNewChunk(x, y);
 		}
 	}
@@ -39,14 +72,14 @@ void AWorldController::GenerateWorld()
 void AWorldController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	FVector playerLocation = player->GetActorLocation();
 	ChunkPos playerChunkPos = AChunk::GetChunkPositionFromWorldCoord(playerLocation);
 
 	const int32 AlwaysAddString = -1;
 	static const FString scrollingMessage(TEXT("Chunk coord: "));
 
-	GEngine->AddOnScreenDebugMessage(AlwaysAddString, 0.5f, FColor::Yellow, scrollingMessage + FString::FromInt(playerChunkPos.x) + FString(TEXT(", ") + FString::FromInt(playerChunkPos.y)));
+	// GEngine->AddOnScreenDebugMessage(AlwaysAddString, 0.5f, FColor::Yellow, scrollingMessage + FString::FromInt(playerChunkPos.x) + FString(TEXT(", ") + FString::FromInt(playerChunkPos.y)));
 
 	// Unload chunks farther than loadedChunkRadius from player
 	for (auto& chunk : loadedChunkMap)
@@ -80,7 +113,7 @@ void AWorldController::Tick(float DeltaTime)
 			CreateNewChunk(x, y);
 		}
 	}
-
+	
 }
 
 AChunk* AWorldController::GetChunk(ChunkPos chunkPos)
@@ -90,12 +123,16 @@ AChunk* AWorldController::GetChunk(ChunkPos chunkPos)
 	return nullptr;
 }
 
+// Creates new AChunk object and adds it to chunk map
 void AWorldController::CreateNewChunk(int x, int y)
 {
 	AChunk* chunk = GetWorld()->SpawnActor<AChunk>();
 	ChunkPos chunkPos(x, y);
 	chunk->Init(chunkPos, chunkMaterial);
+	// set chunk as child actor of world controller
+	chunk->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	loadedChunkMap.Add(chunkPos.AsLong(), chunk);
+	chunk->CreateMesh();
 }
 
 void AWorldController::AddChunk(AChunk* chunk)

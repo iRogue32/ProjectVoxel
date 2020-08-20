@@ -112,12 +112,12 @@ public:
 	virtual void PostLoad() override;
 	ChunkPos GetChunkPosition();
 	static ChunkPos GetChunkPositionFromWorldCoord(FVector pos);
+	void CreateMesh();
 
 private:
 	void CreateHeightMap();
 	void PopulateVoxelMap();
 	void AddVoxelRenderDataToChunk(FVector pos);
-	void CreateMesh();
 	bool GenerateVoxel(int x, int y, int z);
 	bool VoxelIsInChunk(int x, int y, int z);
 	bool CheckVoxel(FVector pos);
