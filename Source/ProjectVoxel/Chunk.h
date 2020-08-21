@@ -10,6 +10,8 @@
 #include "FastNoise.h"
 #include "Chunk.generated.h"
 
+class AWorldController;
+
 UCLASS()
 class PROJECTVOXEL_API AChunk : public AActor
 {
@@ -27,6 +29,9 @@ private:
 
 	//UPROPERTY(VisibleAnywhere, Category = height map)
 	int heightMap[chunkLength][chunkLength];
+
+	// pointer to WorldController which contains chunk
+	AWorldController* world;
 
 public:
 	FVector VOXEL_VERTICES[8] =
@@ -113,6 +118,7 @@ public:
 	ChunkPos GetChunkPosition();
 	static ChunkPos GetChunkPositionFromWorldCoord(FVector pos);
 	void CreateMesh();
+	void GenerateMeshData();
 
 private:
 	void CreateHeightMap();

@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
-#include <string>
 #include "Chunk.h"
+#include <string>
 #include "WorldController.generated.h"
 
 UCLASS()
@@ -15,9 +15,6 @@ class PROJECTVOXEL_API AWorldController : public AActor
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, Category = Blocks)
-		UBlockTypes* blocks;
-
 	UPROPERTY(VisibleAnywhere, Category = Players)
 		APawn* player;
 
@@ -47,21 +44,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	AChunk* GetChunk(ChunkPos chunkPos);
+	bool VoxelIsInBlockPos();
 
 private:
 	void CreateNewChunk(int x, int y);
+	void GenerateWorldMesh();
 	void AddChunk(AChunk* chunk);
 	bool ChunkIsLoaded(ChunkPos chunkPos);
 	bool WithinLoadedRadius(AChunk* chunk, ChunkPos playerChunk);
 
 };
 
-UCLASS()
-class UBlockTypes : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	std::string name;
-	bool isSolid;
-};

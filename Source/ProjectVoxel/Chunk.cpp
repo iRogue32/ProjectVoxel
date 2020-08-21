@@ -2,6 +2,7 @@
 
 
 #include "Chunk.h"
+#include "WorldController.h"
 
 // Sets default values
 AChunk::AChunk()
@@ -29,11 +30,21 @@ void AChunk::Init(ChunkPos pos, UMaterial* _material)
 	material = _material;
 	CreateHeightMap();
 	PopulateVoxelMap();
+	// CreateMesh();
+	SetActorLocation(FVector(chunkPosition.x * 100 * chunkLength, chunkPosition.y * 100 * chunkLength, 0));
+	FString label = "Chunk ";
+	label.AppendInt(chunkPosition.x);
+	label += ", ";
+	label.AppendInt(chunkPosition.y);
+	//SetActorLabel(label);
+}
 
+void AChunk::GenerateMeshData()
+{
 	r = FMath::RandRange(0.0f, 1.0f);
 	g = FMath::RandRange(0.0f, 1.0f);
 	b = FMath::RandRange(0.0f, 1.0f);
-	
+
 	for (int z = 0; z < chunkHeight; z++)
 	{
 		for (int y = 0; y < chunkLength; y++)
@@ -45,14 +56,6 @@ void AChunk::Init(ChunkPos pos, UMaterial* _material)
 			}
 		}
 	}
-
-	// CreateMesh();
-	SetActorLocation(FVector(chunkPosition.x * 100 * chunkLength, chunkPosition.y * 100 * chunkLength, 0));
-	FString label = "Chunk ";
-	label.AppendInt(chunkPosition.x);
-	label += ", ";
-	label.AppendInt(chunkPosition.y);
-	//SetActorLabel(label);
 }
 
 void AChunk::PostActorCreated()
@@ -200,7 +203,7 @@ bool AChunk::CheckVoxel(FVector pos)
 	{
 		return voxelMap[x][y][z];
 	}
-	return false;
+	return true;
 }
 
 // Called when the game starts or when spawned
