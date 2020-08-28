@@ -66,8 +66,7 @@ void AWorldController::GenerateWorld()
 			CreateNewChunk(x, y);
 		}
 	}
-
-	GenerateWorldMesh();
+	// GenerateWorldMesh();
 }
 
 void AWorldController::GenerateWorldMesh()
@@ -123,9 +122,10 @@ void AWorldController::Tick(float DeltaTime)
 			}
 			// If chunk is not loaded, then generate it
 			CreateNewChunk(x, y);
+			printf("test");
 		}
 	}
-	
+	// GenerateWorldMesh();
 }
 
 AChunk* AWorldController::GetChunk(ChunkPos chunkPos)
@@ -144,7 +144,7 @@ void AWorldController::CreateNewChunk(int x, int y)
 	// set chunk as child actor of world controller
 	chunk->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	loadedChunkMap.Add(chunkPos.AsLong(), chunk);
-	chunk->CreateMesh();
+	// chunk->CreateMesh();
 }
 
 void AWorldController::AddChunk(AChunk* chunk)

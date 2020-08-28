@@ -13,6 +13,7 @@ AChunk::AChunk()
 	RootComponent = mesh;
 	mesh->bUseAsyncCooking = true;
 
+	isDirty = false;
 	voxelMap = new bool** [chunkLength];
 	for (int i = 0; i < chunkLength; i++)
 	{
@@ -126,10 +127,16 @@ void AChunk::PopulateVoxelMap()
 			}
 		}
 	}
+	isDirty = true;
 }
 
 void AChunk::AddVoxelRenderDataToChunk(FVector pos)
 {
+	//vertices.Empty();
+	//triangles.Empty();
+	//normals.Empty();
+	//uvs.Empty();
+	//vertexColors.Empty();
 	for (int face = 0; face < 6; face++)
 	{
 		if (!CheckVoxel(pos + VOXEL_NORMALS[face] * 100))
@@ -217,4 +224,10 @@ void AChunk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (isDirty)
+	{
+		GenerateMeshData();
+		CreateMesh();
+		isDirty = false;
+	}
 }

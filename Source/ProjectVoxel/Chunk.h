@@ -97,6 +97,7 @@ public:
 
 	bool*** voxelMap;
 
+	bool isDirty;
 	float r;
 	float g;
 	float b;
@@ -117,8 +118,8 @@ public:
 	virtual void PostLoad() override;
 	ChunkPos GetChunkPosition();
 	static ChunkPos GetChunkPositionFromWorldCoord(FVector pos);
-	void CreateMesh();
 	void GenerateMeshData();
+	void CreateMesh();
 
 private:
 	void CreateHeightMap();
