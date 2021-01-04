@@ -18,7 +18,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Players)
 		APawn* player;
 
-	static const int loadedChunkRadius = 1;
+	static const int loadedChunkRadius = 20;
 
 	UPROPERTY(VisibleAnywhere, Category = LoadedChunks)
 		TMap<int64, AChunk*> loadedChunkMap;
@@ -48,7 +48,6 @@ public:
 
 private:
 	void CreateNewChunk(int x, int y);
-	void GenerateWorldMesh();
 	void AddChunk(AChunk* chunk);
 	bool ChunkIsLoaded(ChunkPos chunkPos);
 	bool WithinLoadedRadius(AChunk* chunk, ChunkPos playerChunk);

@@ -40,7 +40,7 @@ void AChunk::Init(ChunkPos pos, UMaterial* _material)
 	//SetActorLabel(label);
 }
 
-void AChunk::GenerateMeshData()
+void AChunk::GenerateProceduralMeshComponentData()
 {
 	r = FMath::RandRange(0.0f, 1.0f);
 	g = FMath::RandRange(0.0f, 1.0f);
@@ -156,10 +156,15 @@ void AChunk::AddVoxelRenderDataToChunk(FVector pos)
 			uvs.Add(VOXEL_UVS[2]);
 			uvs.Add(VOXEL_UVS[3]);
 
-			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
-			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
-			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
-			vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			//vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			//vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			//vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+			//vertexColors.Add(FLinearColor(r, g, b, 1.0f));
+
+			vertexColors.Add(FLinearColor::Green);
+			vertexColors.Add(FLinearColor::Red);
+			vertexColors.Add(FLinearColor::Blue);
+			vertexColors.Add(FLinearColor::Green);
 
 			triangles.Add(vertexIndex);
 			triangles.Add(vertexIndex + 1);
@@ -226,7 +231,7 @@ void AChunk::Tick(float DeltaTime)
 
 	if (isDirty)
 	{
-		GenerateMeshData();
+		GenerateProceduralMeshComponentData();
 		CreateMesh();
 		isDirty = false;
 	}

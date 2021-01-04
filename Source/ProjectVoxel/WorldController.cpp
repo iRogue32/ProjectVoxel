@@ -69,16 +69,6 @@ void AWorldController::GenerateWorld()
 	// GenerateWorldMesh();
 }
 
-void AWorldController::GenerateWorldMesh()
-{
-	// Iterate through loaded chunks and generate their mesh
-	for (auto& chunk : loadedChunkMap)
-	{
-		chunk.Value->GenerateMeshData();
-		chunk.Value->CreateMesh();
-	}
-}
-
 // Called every frame
 void AWorldController::Tick(float DeltaTime)
 {

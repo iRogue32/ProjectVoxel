@@ -118,14 +118,14 @@ public:
 	virtual void PostLoad() override;
 	ChunkPos GetChunkPosition();
 	static ChunkPos GetChunkPositionFromWorldCoord(FVector pos);
-	void GenerateMeshData();
-	void CreateMesh();
 
 private:
 	void CreateHeightMap();
 	void PopulateVoxelMap();
 	void AddVoxelRenderDataToChunk(FVector pos);
 	bool GenerateVoxel(int x, int y, int z);
+	void GenerateProceduralMeshComponentData();
+	void CreateMesh();
 	bool VoxelIsInChunk(int x, int y, int z);
 	bool CheckVoxel(FVector pos);
 };
